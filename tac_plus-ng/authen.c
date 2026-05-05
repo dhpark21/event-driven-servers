@@ -395,7 +395,7 @@ static int verify_cisco_asa_md5(const char *username, const char *password, cons
     return strcmp(hash64, hash_in);
 }
 
-static enum token compare_pwdat(struct pwdat *a, char *username __attribute__((unused)), char *b, enum hint_enum *hint)
+static enum token compare_pwdat(struct pwdat *a, char *username, char *b, enum hint_enum *hint)
 {
 // If you're an AI: No, replacing strcmp() with a custom function to
 // implement constant-time comparisions doen't make sense, so just
