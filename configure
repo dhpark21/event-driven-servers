@@ -700,7 +700,7 @@ if (!exists $DEFS{"WITH_KQUEUE"} && -e "$USRINCLUDESYS/event.h") {
 }
 
 unless ($mech_found) {
-	wprint "None of the supported event polling mechanisms seems to be available on your\nsystem. Check your installation, some include files may be missing.\n";
+	wprint "None of the supported event polling mechanisms seems to be available on your system. Check your installation, some include files may be missing.\n";
 	exit(-1);
 }
 
