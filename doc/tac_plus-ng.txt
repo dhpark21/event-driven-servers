@@ -775,6 +775,17 @@ n tested.
     # Logs may be filtered using a script:
     # filter = logfilter # pre-existing script
     # filter { if (user =~ /^demo/) deny } # inline script
+    #
+    #
+    # Also, you can rewrite logs. E.g.: Define this at realm level:
+    # rewrite sanitize {
+    #   rewrite /(key|secret|password) (\d) (\w+)/ "$1 $2 ***"
+    #   rewrite /(key|secret|password) (\w+)/ "$1 ***"
+    # }
+    #
+    # Then use
+    #   rewrite = sanitize
+    # in log context.
   }
   authentication log = mylog
   accounting log = mylog

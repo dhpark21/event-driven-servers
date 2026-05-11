@@ -792,6 +792,17 @@ device router.example.com {
     # Logs may be filtered using a script:
     # filter = logfilter # pre-existing script
     # filter { if (user =~ /^demo/) deny } # inline script
+    #
+    #
+    # Also, you can rewrite logs. E.g.: Define this at realm level:
+    # rewrite sanitize {
+    #   rewrite /(key|secret|password) (\d) (\w+)/ "$1 $2 ***"
+    #   rewrite /(key|secret|password) (\w+)/ "$1 ***"
+    # }
+    #
+    # Then use
+    #   rewrite = sanitize
+    # in log context.
   }
   authentication log = mylog
   accounting log = mylog
@@ -2277,8 +2288,7 @@ user ... {
     <span class="emphasis"><i class="emphasis">...</i></span>
     bug compatibility = 2
     <span class="emphasis"><i class="emphasis">...</i></span>
-  }
-</pre>
+  }</pre>
 <p>This configuration will be accepted at realm level, too.</p>
 <p>The bug compatibility value is inherited from the corresponding parent. You can stop that with <tt class="literal">bug compatibility = none</tt>.</p>
 </div>
