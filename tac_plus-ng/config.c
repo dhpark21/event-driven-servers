@@ -97,21 +97,6 @@ struct in6_cidr {
     int mask;
 };
 
-struct rewrite_expr {
-    char *name;
-#ifdef WITH_PCRE2
-    pcre2_code *code;
-    PCRE2_SPTR replacement;
-#endif
-    struct rewrite_expr *next;
-};
-typedef struct rewrite_expr tac_rewrite_expr;
-
-typedef struct {
-    TAC_NAME_ATTRIBUTES;
-    tac_rewrite_expr *expr;
-} tac_rewrite;
-
 static void parse_host(struct sym *, tac_realm *, tac_host *);
 static void parse_net(struct sym *, tac_realm *, tac_user *, tac_net *);
 static void parse_user(struct sym *, tac_realm *);
@@ -614,7 +599,7 @@ static tac_profile *lookup_profile(char *name, tac_realm *r)
     return NULL;
 }
 
-static tac_rewrite *lookup_rewrite(char *name, tac_realm *r)
+tac_rewrite *lookup_rewrite(char *name, tac_realm *r)
 {
     tac_rewrite rewrite = {.name.txt = name,.name.len = strlen(name) };
     for (; r; r = r->parent)
@@ -5725,22 +5710,19 @@ void tac_rewrite_user(tac_session *session, tac_rewrite *rewrite)
     if (!session->username_rewritten) {
 	tac_rewrite_expr *e = rewrite->expr;
 
-	if (e) {
-	    for (int rc = -1; e && rc < 1; e = e->next) {
-		PCRE2_SPTR replacement = e->replacement;
-		PCRE2_UCHAR outbuf[1024];
-		PCRE2_SIZE outlen = sizeof(outbuf);
-		pcre2_match_data *match_data = pcre2_match_data_create_from_pattern(e->code, NULL);
-		rc = pcre2_substitute(e->code, (PCRE2_SPTR8) session->username.txt,
-				      PCRE2_ZERO_TERMINATED, 0,
-				      PCRE2_SUBSTITUTE_EXTENDED, match_data, NULL, replacement, PCRE2_ZERO_TERMINATED, outbuf, &outlen);
-		pcre2_match_data_free(match_data);
-		report(session, LOG_DEBUG, DEBUG_REGEX_FLAG, "pcre2: '%s' <=> '%s' = %d", e->name, session->username.txt, rc);
-		if (rc > 0) {
-		    str_set(&session->username, mem_strndup(session->mem, outbuf, outlen), outlen);
-		    session->username_rewritten = strcmp(session->username_orig.txt, session->username.txt) ? 1 : 0;
-		    report(session, LOG_DEBUG, DEBUG_REGEX_FLAG, "pcre2: setting username to '%s'", session->username.txt);
-		}
+	for (int rc = -1; e && rc < 1; e = e->next) {
+	    PCRE2_SPTR replacement = e->replacement;
+	    PCRE2_UCHAR outbuf[1024];
+	    PCRE2_SIZE outlen = sizeof(outbuf);
+	    pcre2_match_data *match_data = pcre2_match_data_create_from_pattern(e->code, NULL);
+	    rc = pcre2_substitute(e->code, (PCRE2_SPTR8) session->username.txt,
+				  PCRE2_ZERO_TERMINATED, 0, PCRE2_SUBSTITUTE_EXTENDED, match_data, NULL, replacement, PCRE2_ZERO_TERMINATED, outbuf, &outlen);
+	    pcre2_match_data_free(match_data);
+	    report(session, LOG_DEBUG, DEBUG_REGEX_FLAG, "pcre2: '%s' <=> '%s' = %d", e->name, session->username.txt, rc);
+	    if (rc > 0) {
+		str_set(&session->username, mem_strndup(session->mem, outbuf, outlen), outlen);
+		session->username_rewritten = strcmp(session->username_orig.txt, session->username.txt) ? 1 : 0;
+		report(session, LOG_DEBUG, DEBUG_REGEX_FLAG, "pcre2: setting username to '%s'", session->username.txt);
 	    }
 	}
     }

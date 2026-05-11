@@ -370,6 +370,21 @@ struct tac_rule {
 
 struct sni_list;
 
+struct rewrite_expr {
+    char *name;
+#ifdef WITH_PCRE2
+    pcre2_code *code;
+    PCRE2_SPTR replacement;
+#endif
+    struct rewrite_expr *next;
+};
+typedef struct rewrite_expr tac_rewrite_expr;
+
+typedef struct {
+    TAC_NAME_ATTRIBUTES;
+    tac_rewrite_expr *expr;
+} tac_rewrite;
+
 struct realm {
     TAC_NAME_ATTRIBUTES;
     u_int line;			/* configuration file line number */
@@ -852,6 +867,7 @@ tac_user *lookup_user(tac_session *);
 mavis_ctx *lookup_mcx(tac_realm *);
 tac_realm *lookup_realm(char *, tac_realm *);
 radixtree_t *lookup_hosttree(tac_realm *);
+tac_rewrite *lookup_rewrite(char *name, tac_realm *r);
 
 struct revmap {
     time_t ttl;
