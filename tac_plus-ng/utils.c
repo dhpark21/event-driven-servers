@@ -625,6 +625,8 @@ void parse_log(struct sym *sym, tac_realm *r)
 		sym_get(sym);
 		parse(sym, S_equal);
 		lf->rewrite = lookup_rewrite(sym->buf, r);
+		if (!lf->rewrite)
+		    parse_error(sym, "Rewrite '%s' not found.", sym->buf);
 		sym_get(sym);
 		continue;
 #endif
