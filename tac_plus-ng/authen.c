@@ -1889,7 +1889,7 @@ void get_revmap_nac(tac_session *session)
 	    for (int i = 0; i < 3; i++) {
 		if (r->dns_tree_ptr[i]) {
 		    struct revmap *rev = radix_lookup(r->dns_tree_ptr[i], &session->nac_address, NULL);
-		    if (rev && rev->name && rev->ttl >= io_now.tv_sec) {
+		    if (rev && rev->name && (!i || rev->ttl >= io_now.tv_sec)) {
 			str_set(&session->nac_dns_name, mem_strdup(session->mem, rev->name), 0);
 			report(NULL, LOG_DEBUG, DEBUG_DNS_FLAG, "NAC revmap(%s) = %s [TTL: %lld]", session->nac_addr_ascii.txt, rev->name,
 			       (long long) (rev->ttl - io_now.tv_sec));
@@ -1949,7 +1949,7 @@ void get_revmap_nas(tac_session *session)
 	    for (int i = 0; i < 3; i++) {
 		if (r->dns_tree_ptr[i]) {
 		    struct revmap *rev = radix_lookup(r->dns_tree_ptr[i], &ctx->device_addr, NULL);
-		    if (rev && rev->name && rev->ttl >= io_now.tv_sec) {
+		    if (rev && rev->name && (!i || rev->ttl >= io_now.tv_sec)) {
 			str_set(&ctx->device_dns_name, mem_strdup(ctx->mem, rev->name), 0);
 			report(NULL, LOG_DEBUG, DEBUG_DNS_FLAG, "NAS revmap(%s) = %s [TTL: %lld]", ctx->device_addr_ascii.txt, rev->name,
 			       (long long) (rev->ttl - io_now.tv_sec));
