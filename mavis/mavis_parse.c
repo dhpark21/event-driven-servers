@@ -158,7 +158,7 @@ void parse_error(struct sym *sym, char *fmt, ...)
     vsnprintf(msg, sizeof(msg), fmt, ap);
     va_end(ap);
 
-    if (common_data.debugtty)
+    if (common_data.debugtty || common_data.debugstderr)
 	fprintf(stderr, "%.*s\n%s:%u: %s\n", sym->len - sym->tlen, sym->in, sym->filename, sym->line, msg);
     report_cfg_error(LOG_ERR, ~0, "%s:%u: %s", sym->filename, sym->line, msg);
 
@@ -1228,7 +1228,7 @@ void report_cfg_error(int priority, int level, char *fmt, ...)
     }
 
     if ((common_data.debug & level) /*|| common_data.parse_only */ ) {
-	if (common_data.debugtty) {
+	if (common_data.debugtty || common_data.debugstderr) {
 	    fprintf(stderr, "%ld: %s\n", (long int) common_data.pid, msg);
 	    fflush(stderr);
 	} else
@@ -1858,6 +1858,7 @@ void common_usage(void)
 	    "-I <spawnd-id>    select spawnd configuration id\n"
 	    "-p <pid-file>     write master process ID to the file specified\n"
 	    "-d <debug-level>  set debugging level\n"
+	    "-D                send debug to stderr even if it's not a TTY\n"
 	    "\n"
 	    "%sVersion:%s %s%s%s\n"
 	    "\n"

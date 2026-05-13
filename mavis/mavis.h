@@ -374,6 +374,7 @@ struct common_data {
     char *gcorepath;
     char *debug_cmd;
     int debugtty;
+    int debugstderr;
     pid_t pid;
     int users_min;
     int users_max;
